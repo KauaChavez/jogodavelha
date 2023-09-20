@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo da Velha</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-image: url('img/img_fundo.jpg');
+            background-size: cover;
+            color: #eee;
+        }
+        h1 {
+            font-size: 24px;
+            color: #eee;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            gap: 5px;
+            margin: 20px auto;
+            max-width: 300px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            font-size: 36px;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            border: 1px solid #ccc;
+            background-color: #eee;
+        }
+        .cell:hover {
+            background-color: #ddd;
+        }
+        .cell.X {
+            color: #f00;
+        }
+        .cell.O {
+            color: #00f;
+        }
+        #message {
+            font-size: 18px;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #reset-button {
+            font-size: 16px;
+            padding: 10px 20px;
+            margin-top: 20px;
+            cursor: pointer;
+        }
+
+        #score-table {
+            margin-top: 20px;
+        }
+        #score-table th, #score-table td {
+            padding: 5px 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Jogo da Velha</h1>
+    <div id="board"></div>
+    <div id="message"></div>
+    <button id="reset-button">Reiniciar Jogo</button>
+    <table id="score-table">
+        <thead>
+            <tr>
+                <th>Jogador</th>
+                <th>Pontos</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td id="playerX">Jogador X</td>
+                <td id="scoreX">0</td>
+            </tr>
+            <tr>
+                <td id="playerO">Jogador O</td>
+                <td id="scoreO">0</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <script>
+        const board = document.getElementById('board');
+        const message = document.getElementById('message');
+        const resetButton = document.getElementById('reset-button');
+        const playerXName = document.getElementById('playerX');
+        const playerOName = document.getElementById('playerO');
+        const scoreX = document.getElementById('scoreX');
+        const scoreO = document.getElementById('scoreO');
+        let currentPlayer = 'X';
+        let cells = ['', '', '', '', '', '', '', '', ''];
+        let gameActive = true;
+        let score = { 'X': 0, 'O': 0 };
+
+        // Cria as células do tabuleiro    
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.dataset.index = i;
+            cell.addEventListener('click', () => handleCellClick(cell));
+            board.appendChild(cell);
+        }
+
+        // Função para atualizar a tabela de pontos
+        function updateScore() {
+            scoreX.innerText = score['X'];
+            scoreO.innerText = score['O'];
+        }
+
+        // Função para tratar o clique em uma célula
+        function handleCellClick(cell) {
+            const cellIndex = cell.dataset.index;
+            if (cells[cellIndex] === '' && gameActive) {
+                cells[cellIndex] = currentPlayer;
+                cell.classList.add(currentPlayer);
+                cell.innerText = currentPlayer;
+                checkResult();
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+            }
+        }
+
+        // Verifica o resultado do jogo
+        function checkResult() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Linhas
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colunas
+                [0, 4, 8], [2, 4, 6] // Diagonais
+            ];
+
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (cells[a] && cells[a] === cells[b] && cells[b] === cells[c]) {
+                    gameActive = false;
+                    message.innerText = `Jogador ${currentPlayer} venceu!`;
+                    return;
+                }
+            }
+
+            if (!cells.includes('')) {
+                gameActive = false;
+                message.innerText = 'Empate! O jogo terminou.';
+            }
+        }
+
+        // Reinicia o jogo
+        resetButton.addEventListener('click', () => {
+            cells = ['', '', '', '', '', '', '', '', ''];
+            currentPlayer = 'X';
+            gameActive = true;
+            message.innerText = '';
+            document.querySelectorAll('.cell').forEach(cell => {
+                cell.classList.remove('X', 'O');
+                cell.innerText = '';
+            });
+        });
+
+        // Modifique a função checkResult para atualizar os pontos
+        function checkResult() {
+            const winPatterns = [
+                [0, 1, 2], [3, 4, 5], [6, 7, 8], // Linhas
+                [0, 3, 6], [1, 4, 7], [2, 5, 8], // Colunas
+                [0, 4, 8], [2, 4, 6] // Diagonais
+            ];
+
+            for (const pattern of winPatterns) {
+                const [a, b, c] = pattern;
+                if (cells[a] && cells[a] === cells[b] && cells[b] === cells[c]) {
+                    gameActive = false;
+                    message.innerText = `Jogador ${currentPlayer} venceu!`;
+                    score[currentPlayer]++;
+                    updateScore();
+                    return;
+                }
+            }
+
+            if (!cells.includes('')) {
+                gameActive = false;
+                message.innerText = 'Empate! O jogo terminou.';
+            }
+        }
+    </script>
+</body>
+</html>
